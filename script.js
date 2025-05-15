@@ -8,8 +8,8 @@ const gameover = document.getElementById("gameover");
 const leaderboardDiv = document.getElementById("leaderboard");
 const scoresList = document.getElementById("scores");
 
-const paddle = { x: 350, y: 570, w: 100, h: 15, dx: 10 };
-let ball = { x: 400, y: 300, r: 15, dx: 0, dy: 0 };
+const paddle = { x: 350, y: 570, w: 120, h: 18, dx: 12 };
+let ball = { x: 400, y: 300, r: 12, dx: 0, dy: 0 };
 const blockW = 70, blockH = 30, spacing = 10;
 let blocks = [], bonuses = [];
 let lives = 3, level = 1, score = 0, paused = false, running = false;
@@ -50,7 +50,7 @@ function startGame() {
   menu.style.display = gameover.style.display = leaderboardDiv.style.display = "none";
   canvas.style.display = "block";
   lives = 3; level = 1; score = 0; paused = false;
-  paddle.w = 100;
+  paddle.w = 120;
   createBlocks();
   placeBall();
   running = true;
@@ -101,12 +101,14 @@ function createBlocks() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "blue";
+
+  // Улучшенная графика
+  ctx.fillStyle = "#00BFFF";
   ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
-  ctx.fillStyle = "red";
+  ctx.fillStyle = "#FF4500";
   ctx.fill();
   ctx.closePath();
 
@@ -124,26 +126,24 @@ function draw() {
   });
 
   ctx.fillStyle = "white";
-  ctx.fillText(`Счёт: ${score}`, 20, 20);
-  ctx.fillText(`Жизни: ${lives}`, 20, 40);
-  ctx.fillText(`Уровень: ${level}`, 20, 60);
+  ctx.font = "20px Arial";
+  ctx.fillText(`Счёт: ${score}`, 20, 30);
+  ctx.fillText(`Жизни: ${lives}`, 20, 60);
+  ctx.fillText(`Уровень: ${level}`, 20, 90);
 
-  ctx.fillText("Бонусы:", 20, canvas.height - 80);
+  ctx.fillText("Бонусы:", 20, canvas.height - 100);
   ctx.fillStyle = "yellow";
-  ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 65);
+  ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 75);
   ctx.fillStyle = "orange";
   ctx.fillText("Оранжевый: увеличение платформы на 10 сек", 20, canvas.height - 50);
   ctx.fillStyle = "purple";
-  ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 35);
-  ctx.fillStyle = "lightgray";
-  ctx.fillText("Нажмите ← → для движения, пробел — запуск/пауза", 20, canvas.height - 15);
+  ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 25);
 }
 
 function update() {
   if (!running) return;
 
   if (!paused) {
-    // перемещаем платформу как в pygame
     if (paddleMoveLeft && paddle.x > 0) paddle.x -= paddle.dx;
     if (paddleMoveRight && paddle.x < canvas.width - paddle.w) paddle.x += paddle.dx;
 
@@ -179,7 +179,7 @@ function update() {
           if (b.type === "widen") {
             paddle.w += 50;
             clearTimeout(widenTimer);
-            widenTimer = setTimeout(() => paddle.w = 100, 10000);
+            widenTimer = setTimeout(() => paddle.w = 120, 10000);
           }
           if (b.type === "slow") {
             ball.dx = Math.sign(ball.dx) * Math.max(2, Math.abs(ball.dx) - 2);
