@@ -8,7 +8,7 @@ const gameover = document.getElementById("gameover");
 const leaderboardDiv = document.getElementById("leaderboard");
 const scoresList = document.getElementById("scores");
 
-const paddle = { x: 350, y: 570, w: 120, h: 18, dx: 12 };
+const paddle = { x: 340, y: 570, w: 120, h: 20, dx: 14 };
 let ball = { x: 400, y: 300, r: 12, dx: 0, dy: 0 };
 const blockW = 70, blockH = 30, spacing = 10;
 let blocks = [], bonuses = [];
@@ -59,7 +59,7 @@ function startGame() {
 
 function gameOver() {
   saveScore();
-  document.getElementById("finalScore").textContent = `Игра окончена! Счёт: ${score}`;
+  document.getElementById("finalScore").textContent = `Игра окончена! Ваш счёт: ${score}`;
   gameover.style.display = "block";
   canvas.style.display = "none";
   running = false;
@@ -72,7 +72,7 @@ function placeBall() {
 }
 
 function launchBall() {
-  const speed = 5 + level * 0.5;
+  const speed = 6 + level * 0.5;
   ball.dx = (Math.random() > 0.5 ? 1 : -1) * speed;
   ball.dy = -speed;
 }
@@ -83,7 +83,6 @@ function createBlocks() {
   const rows = 5 + level - 1;
   const totalW = cols * blockW + (cols - 1) * spacing;
   const startX = (canvas.width - totalW) / 2;
-
   let strongLeft = 2 + (level - 1) * 2;
 
   for (let row = 0; row < rows; row++) {
@@ -102,7 +101,6 @@ function createBlocks() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Улучшенная графика
   ctx.fillStyle = "#00BFFF";
   ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
@@ -126,18 +124,23 @@ function draw() {
   });
 
   ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.fillText(`Счёт: ${score}`, 20, 30);
-  ctx.fillText(`Жизни: ${lives}`, 20, 60);
-  ctx.fillText(`Уровень: ${level}`, 20, 90);
+  ctx.font = "22px Arial";
+  ctx.fillText(`Счёт: ${score}`, 20, 35);
+  ctx.fillText(`Жизни: ${lives}`, 20, 65);
+  ctx.fillText(`Уровень: ${level}`, 20, 95);
 
-  ctx.fillText("Бонусы:", 20, canvas.height - 100);
+  ctx.font = "20px Arial";
+  ctx.fillText("БОНУСЫ:", 20, canvas.height - 100);
   ctx.fillStyle = "yellow";
   ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 75);
   ctx.fillStyle = "orange";
   ctx.fillText("Оранжевый: увеличение платформы на 10 сек", 20, canvas.height - 50);
   ctx.fillStyle = "purple";
   ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 25);
+
+  ctx.fillStyle = "lightgray";
+  ctx.font = "18px Arial";
+  ctx.fillText("← → — движение, пробел — запуск/пауза", 20, canvas.height - 5);
 }
 
 function update() {
