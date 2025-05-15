@@ -8,13 +8,14 @@ const gameover = document.getElementById("gameover");
 const leaderboardDiv = document.getElementById("leaderboard");
 const scoresList = document.getElementById("scores");
 
-const paddle = { x: 350, y: 570, w: 100, h: 15, dx: 16 }; // увеличена скорость
+const paddle = { x: 350, y: 570, w: 100, h: 15, dx: 10 }; // снижена скорость для плавности
 let ball = { x: 400, y: 300, r: 15, dx: 0, dy: 0 };
 const blockW = 70, blockH = 30, spacing = 10;
 let blocks = [], bonuses = [];
 let lives = 3, level = 1, score = 0, paused = false, running = false;
 let playerName = "";
 let widenTimer = null, slowTimer = null;
+let keysPressed = {};
 
 function showMenu() {
   menu.style.display = "block";
@@ -128,19 +129,24 @@ function draw() {
   ctx.fillText(`Жизни: ${lives}`, 20, 40);
   ctx.fillText(`Уровень: ${level}`, 20, 60);
 
-  ctx.fillText("Бонусы:", 20, canvas.height - 60);
+  ctx.fillText("Бонусы:", 20, canvas.height - 80);
   ctx.fillStyle = "yellow";
-  ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 45);
+  ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 65);
   ctx.fillStyle = "orange";
-  ctx.fillText("Оранжевый: увеличить платформу на 10 сек", 20, canvas.height - 30);
+  ctx.fillText("Оранжевый: увеличение платформы на 10 сек", 20, canvas.height - 50);
   ctx.fillStyle = "purple";
-  ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 15);
+  ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 35);
+  ctx.fillStyle = "lightgray";
+  ctx.fillText("Нажмите ← → для движения, пробел — запуск/пауза", 20, canvas.height - 15);
 }
 
 function update() {
   if (!running) return;
 
   if (!paused) {
+    if (keysPressed["ArrowLeft"] && paddle.x > 0) paddle.x -= paddle.dx;
+    if (keysPressed["ArrowRight"] && paddle.x < canvas.width - paddle.w) paddle.x += paddle.dx;
+
     if (ball.dx !== 0 || ball.dy !== 0) {
       ball.x += ball.dx;
       ball.y += ball.dy;
@@ -159,9 +165,9 @@ function update() {
           ball.dy *= -1;
           if (b.hits === 1 && b.color === "yellow") b.color = "green";
           if (b.hits <= 0) {
-            blocks.splice(i,1);
+            blocks.splice(i, 1);
             score += 10;
-            if (Math.random() < 0.3) createBonus(b.x + blockW/2, b.y + blockH/2);
+            if (Math.random() < 0.3) createBonus(b.x + blockW / 2, b.y + blockH / 2);
           }
         }
       }
@@ -184,7 +190,7 @@ function update() {
               ball.dy = ball.dy > 0 ? 5 : -5;
             }, 10000);
           }
-          bonuses.splice(i,1);
+          bonuses.splice(i, 1);
         }
       });
 
@@ -217,17 +223,20 @@ function update() {
 
 function createBonus(x, y) {
   const types = ["life", "widen", "slow"];
-  const type = types[Math.floor(Math.random()*types.length)];
+  const type = types[Math.floor(Math.random() * types.length)];
   bonuses.push({ x, y, type });
 }
 
 document.addEventListener("keydown", e => {
+  keysPressed[e.key] = true;
   if (e.key === " ") {
     if (ball.dx === 0 && ball.dy === 0) launchBall();
     else paused = !paused;
   }
-  if (e.key === "ArrowLeft") paddle.x -= paddle.dx;
-  if (e.key === "ArrowRight") paddle.x += paddle.dx;
+});
+
+document.addEventListener("keyup", e => {
+  keysPressed[e.key] = false;
 });
 
 showMenu();
