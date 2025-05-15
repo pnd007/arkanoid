@@ -2,19 +2,22 @@
 // Включает уровни, бонусы, паузу, таблицу лидеров и меню (localStorage)
 
 const canvas = document.getElementById("gameCanvas");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
 const menu = document.getElementById("menu");
 const gameover = document.getElementById("gameover");
 const leaderboardDiv = document.getElementById("leaderboard");
 const scoresList = document.getElementById("scores");
 
-const paddle = { x: 340, y: 630, w: 100, h: 15, dx: 10 };
-let ball = { x: 400, y: 300, r: 15, dx: 0, dy: 0 };
+const paddle = { x: canvas.width / 2 - 50, y: canvas.height - 70, w: 100, h: 15, dx: 10 };
+let ball = { x: canvas.width / 2, y: canvas.height / 2, r: 15, dx: 0, dy: 0 };
 const blockW = 70, blockH = 30, spacing = 10;
 let blocks = [], bonuses = [];
 let lives = 3, level = 1, score = 0, paused = false, running = false;
 let playerName = "";
 let widenTimer = null, slowTimer = null;
+let lastBonusTime = 0;
 
 function showMenu() {
   menu.style.display = "block";
@@ -51,6 +54,8 @@ function startGame() {
   canvas.style.display = "block";
   lives = 3; level = 1; score = 0; paused = false;
   paddle.w = 100;
+  paddle.x = canvas.width / 2 - paddle.w / 2;
+  paddle.y = canvas.height - 70;
   createBlocks();
   placeBall();
   running = true;
@@ -79,7 +84,7 @@ function launchBall() {
 
 function createBlocks() {
   blocks = [];
-  const cols = 9;
+  const cols = Math.floor((canvas.width - spacing) / (blockW + spacing));
   const rows = 5 + level - 1;
   const totalW = cols * blockW + (cols - 1) * spacing;
   const startX = (canvas.width - totalW) / 2;
@@ -129,6 +134,12 @@ function draw() {
   ctx.fillText(`Жизни: ${lives}`, 20, 65);
   ctx.fillText(`Уровень: ${level}`, 20, 95);
 
+  if (lastBonusTime > 0) {
+    const elapsed = Math.floor((Date.now() - lastBonusTime) / 1000);
+    ctx.fillStyle = "orange";
+    ctx.fillText(`Бонус активен: ${10 - elapsed} сек`, 20, 125);
+  }
+
   ctx.font = "20px Arial";
   ctx.fillText("БОНУСЫ:", 20, canvas.height - 120);
   ctx.fillStyle = "yellow";
@@ -157,8 +168,16 @@ function update() {
       if (ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) ball.dx *= -1;
       if (ball.y - ball.r < 0) ball.dy *= -1;
 
-      if (ball.y + ball.r > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
-        ball.dy *= -1;
+      if (
+        ball.y + ball.r > paddle.y &&
+        ball.x > paddle.x &&
+        ball.x < paddle.x + paddle.w
+      ) {
+        const hitPoint = (ball.x - paddle.x) / paddle.w;
+        const angle = (hitPoint - 0.5) * Math.PI / 3;
+        const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        ball.dx = speed * Math.sin(angle);
+        ball.dy = -Math.abs(speed * Math.cos(angle));
       }
 
       for (let i = blocks.length - 1; i >= 0; i--) {
@@ -178,6 +197,7 @@ function update() {
       bonuses.forEach((b, i) => {
         b.y += 3;
         if (b.y > paddle.y && b.x > paddle.x && b.x < paddle.x + paddle.w) {
+          lastBonusTime = Date.now();
           if (b.type === "life") lives++;
           if (b.type === "widen") {
             paddle.w += 50;
