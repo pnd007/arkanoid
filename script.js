@@ -8,8 +8,8 @@ const gameover = document.getElementById("gameover");
 const leaderboardDiv = document.getElementById("leaderboard");
 const scoresList = document.getElementById("scores");
 
-const paddle = { x: 340, y: 570, w: 120, h: 20, dx: 14 };
-let ball = { x: 400, y: 300, r: 12, dx: 0, dy: 0 };
+const paddle = { x: 340, y: 630, w: 100, h: 15, dx: 10 };
+let ball = { x: 400, y: 300, r: 15, dx: 0, dy: 0 };
 const blockW = 70, blockH = 30, spacing = 10;
 let blocks = [], bonuses = [];
 let lives = 3, level = 1, score = 0, paused = false, running = false;
@@ -50,7 +50,7 @@ function startGame() {
   menu.style.display = gameover.style.display = leaderboardDiv.style.display = "none";
   canvas.style.display = "block";
   lives = 3; level = 1; score = 0; paused = false;
-  paddle.w = 120;
+  paddle.w = 100;
   createBlocks();
   placeBall();
   running = true;
@@ -124,23 +124,23 @@ function draw() {
   });
 
   ctx.fillStyle = "white";
-  ctx.font = "22px Arial";
+  ctx.font = "24px Arial";
   ctx.fillText(`Счёт: ${score}`, 20, 35);
   ctx.fillText(`Жизни: ${lives}`, 20, 65);
   ctx.fillText(`Уровень: ${level}`, 20, 95);
 
   ctx.font = "20px Arial";
-  ctx.fillText("БОНУСЫ:", 20, canvas.height - 100);
+  ctx.fillText("БОНУСЫ:", 20, canvas.height - 120);
   ctx.fillStyle = "yellow";
-  ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 75);
+  ctx.fillText("Жёлтый: +жизнь", 20, canvas.height - 95);
   ctx.fillStyle = "orange";
-  ctx.fillText("Оранжевый: увеличение платформы на 10 сек", 20, canvas.height - 50);
+  ctx.fillText("Оранжевый: увеличение платформы на 10 сек", 20, canvas.height - 70);
   ctx.fillStyle = "purple";
-  ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 25);
+  ctx.fillText("Фиолетовый: замедление мяча на 10 сек", 20, canvas.height - 45);
 
   ctx.fillStyle = "lightgray";
   ctx.font = "18px Arial";
-  ctx.fillText("← → — движение, пробел — запуск/пауза", 20, canvas.height - 5);
+  ctx.fillText("← → — движение, пробел — запуск/пауза", 20, canvas.height - 15);
 }
 
 function update() {
@@ -182,7 +182,7 @@ function update() {
           if (b.type === "widen") {
             paddle.w += 50;
             clearTimeout(widenTimer);
-            widenTimer = setTimeout(() => paddle.w = 120, 10000);
+            widenTimer = setTimeout(() => paddle.w = 100, 10000);
           }
           if (b.type === "slow") {
             ball.dx = Math.sign(ball.dx) * Math.max(2, Math.abs(ball.dx) - 2);
