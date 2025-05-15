@@ -8,14 +8,13 @@ const gameover = document.getElementById("gameover");
 const leaderboardDiv = document.getElementById("leaderboard");
 const scoresList = document.getElementById("scores");
 
-const paddle = { x: 350, y: 570, w: 100, h: 15, dx: 10 }; // снижена скорость для плавности
+const paddle = { x: 350, y: 570, w: 100, h: 15, dx: 10 };
 let ball = { x: 400, y: 300, r: 15, dx: 0, dy: 0 };
 const blockW = 70, blockH = 30, spacing = 10;
 let blocks = [], bonuses = [];
 let lives = 3, level = 1, score = 0, paused = false, running = false;
 let playerName = "";
 let widenTimer = null, slowTimer = null;
-let keysPressed = {};
 
 function showMenu() {
   menu.style.display = "block";
@@ -144,8 +143,9 @@ function update() {
   if (!running) return;
 
   if (!paused) {
-    if (keysPressed["ArrowLeft"] && paddle.x > 0) paddle.x -= paddle.dx;
-    if (keysPressed["ArrowRight"] && paddle.x < canvas.width - paddle.w) paddle.x += paddle.dx;
+    // перемещаем платформу как в pygame
+    if (paddleMoveLeft && paddle.x > 0) paddle.x -= paddle.dx;
+    if (paddleMoveRight && paddle.x < canvas.width - paddle.w) paddle.x += paddle.dx;
 
     if (ball.dx !== 0 || ball.dy !== 0) {
       ball.x += ball.dx;
@@ -227,8 +227,12 @@ function createBonus(x, y) {
   bonuses.push({ x, y, type });
 }
 
+let paddleMoveLeft = false;
+let paddleMoveRight = false;
+
 document.addEventListener("keydown", e => {
-  keysPressed[e.key] = true;
+  if (e.key === "ArrowLeft") paddleMoveLeft = true;
+  if (e.key === "ArrowRight") paddleMoveRight = true;
   if (e.key === " ") {
     if (ball.dx === 0 && ball.dy === 0) launchBall();
     else paused = !paused;
@@ -236,7 +240,8 @@ document.addEventListener("keydown", e => {
 });
 
 document.addEventListener("keyup", e => {
-  keysPressed[e.key] = false;
+  if (e.key === "ArrowLeft") paddleMoveLeft = false;
+  if (e.key === "ArrowRight") paddleMoveRight = false;
 });
 
 showMenu();
